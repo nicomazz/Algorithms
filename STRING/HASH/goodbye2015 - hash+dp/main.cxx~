@@ -1,0 +1,63 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef pair<int, int> pi;
+typedef pair<int,pi> pii;
+typedef vector<int> vi;
+typedef long long ll;
+typedef unsigned long long ull;
+const ll MOD = 1e9 + 7;
+
+#define MAXN 5001
+string s;
+int N;
+ll dp[MAXN][MAXN]; // da qui, con al minimo n cifre
+
+int compare(int a,int b, int c, int d) // a-b è >= a c-d 
+{
+	if( b-a != d-c) {cerr<<"ERRORE!!\n"; return false;}	
+	for (int i = a, ii = b; i < b; i++,ii++)
+	{
+		if ( s[i] == s[ii]) continue;
+		return s[i] > s[ii];
+	}
+	return true; // sono uguali
+}
+ll f(int from, int min_c)
+{
+	//cerr<<"from: "<<from<<" min_c: "<<min_c<<"\n";
+	//if (from == N) return 0;
+	if (from + min_c > N) return 0; // >= ?
+	if (from + min_c == N) return 1; // perfetto
+	int rem_space = N-(from+min_c);
+	if (rem_space < min_c) return 1; // prendo tutto
+	
+	ll & res = dp[from][min_c];
+	if ( res != -1) return res;
+	
+	res = 0;
+	
+	int to = from+min_c;
+	if ( s[to] == '0') return res = (f(from,min_c+1) % MOD); // facciamo partire dopo
+	
+	int att_len = to-from;
+	int next_len = att_len; // +1 ??
+	if (to+next_len > N) return 1; // raggiunta len massima di già, tutto il resto con questo
+	bool to_add = compare(from,to,to,to+att_len);
+	if ( to_add) next_len++;
+	res = (res + f(to,next_len)) % MOD;
+	res = (res + f(from,min_c+1)) % MOD;
+	
+	return res;
+	
+}
+
+int main()
+{
+	ios::sync_with_stdio(0);
+	cin>>N;
+	cin>>s;
+	memset(dp,-1,sizeof dp);
+	cout<<f(0,1);
+	return 0;
+}
